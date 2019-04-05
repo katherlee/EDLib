@@ -47,11 +47,28 @@ int main(int argc, const char ** argv) {
     ham.diag();
     // Save eigenvalues to HDF5 file
     EDLib::hdf5::save_eigen_pairs(ham, ar, "results");
+    
+    // Compute static observables
+    EDLib::StaticObservables<HType> staticObservables(params);
+    auto obs = staticObservables.calculate_static_observables(ham);
+    EDLib::hdf5::save_static_observables(obs, ar, "results");
+    // Print out and save observables
+    for(auto ivar = obs.begin(); ivar != obs.end(); ++ivar){
+      std::cout << "<" << (*ivar).first << "> = {";
+      for(int i = 0; i < (*ivar).second.size(); ++i){
+        if(i){
+          std::cout << ", ";
+        }
+        std::cout << (*ivar).second[i];
+      }
+      std::cout << "}" << std::endl;
+    }
+
     // Construct Green's function object
-    EDLib::gf::GreensFunction < HType,  alps::gf::matsubara_positive_mesh, alps::gf::statistics::statistics_type> greensFunction(params, ham,alps::gf::statistics::statistics_type::FERMIONIC);
+    // EDLib::gf::GreensFunction < HType,  alps::gf::matsubara_positive_mesh, alps::gf::statistics::statistics_type> greensFunction(params, ham,alps::gf::statistics::statistics_type::FERMIONIC);
     // Compute and save Green's function
-    greensFunction.compute();
-    greensFunction.save(ar, "results");
+    // greensFunction.compute();
+    // greensFunction.save(ar, "results");
     // Init two particle Green's function object
     //EDLib::gf::ChiLoc<HType, alps::gf::real_frequency_mesh> susc(params, ham);
     // Compute and save spin susceptibility
